@@ -12,9 +12,9 @@ export type ArticleType = {
   title: string;
   description: string;
   body: string;
-  tags: string[];
-  createAt: string;
-  updateAt: string;
+  tagList: string[];
+  createdAt: string;
+  updatedAt: string;
   favorited: boolean;
   favoritesCount: number;
   author: AuthorType;

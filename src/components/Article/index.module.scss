@@ -1,9 +1,22 @@
+.container {
+  // box-sizing: border-box;
+  // width: 940px;
+  // height: 140px;
+  // background-color: #fff;
+  // border-radius: 0 5px 5px 0;
+  // padding: 15px;
+  // box-shadow: 0 5px 10px 0 rgba($color: #000000, $alpha: 0.15);
+  display: grid;
+  grid-template-columns: 4fr 1fr;
+}
+
 .article {
-  box-sizing: border-box;
-  width: 940px;
-  height: 140px;
-  background-color: #fff;
-  border-radius: 0 5px 5px 0;
-  padding: 15px;
-  box-shadow: 0 5px 10px 0 rgba($color: #000000, $alpha: 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.text {
+  color: rgba($color: #000000, $alpha: 0.75);
+  font-size: 12px;
 }

@@ -1,14 +1,7 @@
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  align-items: center;
-}
-
-.wrapper {
+.pageContainer {
   box-sizing: border-box;
   width: 940px;
-  height: 140px;
+  min-height: 800px;
   background-color: #fff;
   border-radius: 0 5px 5px 0;
   padding: 15px;
