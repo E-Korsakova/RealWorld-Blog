@@ -1,14 +1,15 @@
 import { ReactElement, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { Spin } from 'antd';
 
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { fetchArticles } from '../../store/fetchSlice';
-import { AppHeader } from '../AppHeader';
-import { AppFooter } from '../AppFooter';
 import { ArticleList } from '../ArticleList';
-// import { ArticlePage } from '../ArticlePage';
-
-import styles from './index.module.scss';
+import { Layout } from '../Layout';
+import { ArticlePage } from '../ArticlePage';
+import { NewAccountForm } from '../NewAccountForm';
+import { LoginForm } from '../LoginForm';
+import { EditProfileForm } from '../EditProfileForm';
 
 function App(): ReactElement {
   const dispatch = useAppDispatch();
@@ -20,12 +21,18 @@ function App(): ReactElement {
 
   console.log(articles);
   return (
-    <div className={styles.app}>
-      <AppHeader />
-      {loading ? <Spin size="large" /> : <ArticleList />}
-      {/* {loading ? <Spin size="large" /> : <ArticlePage {...articles[3]} />} */}
-      <AppFooter />
-    </div>
+    <>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={loading ? <Spin size="large" /> : <ArticleList />} />
+          <Route path="articles" element={loading ? <Spin size="large" /> : <ArticleList />} />
+          <Route path="articles/:id" element={loading ? <Spin size="large" /> : <ArticlePage />} />
+          <Route path="sign-up" element={<NewAccountForm />} />
+          <Route path="sign-in" element={<LoginForm />} />
+          <Route path="profile" element={<EditProfileForm />} />
+        </Route>
+      </Routes>
+    </>
   );
 }
 

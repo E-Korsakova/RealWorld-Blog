@@ -5,6 +5,7 @@
 }
 
 .header {
+  width: 700px;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -16,6 +17,11 @@
   color: #1890ff;
   font-size: 1.55em;
   font-weight: 600;
+}
+
+.wrapper {
+  max-height: 47px;
+  overflow: auto;
 }
 
 .likeButton {

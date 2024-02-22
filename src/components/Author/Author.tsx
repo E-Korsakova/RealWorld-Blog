@@ -21,7 +21,7 @@ export const Author = ({ author, date }: AuthorProps): ReactNode => {
         <span className={styles.date}>{postDate}</span>
       </div>
       <div className={styles.avatar}>
-        <img src={author.image} alt="avatar" width={46} />
+        <img src={author.image} alt="avatar" className={styles.image} />
       </div>
     </div>
   );

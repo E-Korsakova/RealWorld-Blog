@@ -22,6 +22,7 @@ export type ArticleType = {
 
 type FetchState = {
   articles: ArticleType[];
+  article: ArticleType | null;
   articlesCount: number;
   currentPage: number;
   loading: boolean;
@@ -30,6 +31,7 @@ type FetchState = {
 
 const initialState: FetchState = {
   articles: [],
+  article: null,
   articlesCount: 0,
   currentPage: 1,
   loading: false,
@@ -54,6 +56,16 @@ export const fetchArticles = createAsyncThunk<
   return data;
 });
 
+export const getArticle = createAsyncThunk<ArticleType, string | undefined, { rejectValue: string }>(
+  'fetch/getArticle',
+  async function (slug, { rejectWithValue }) {
+    const response = await fetch(`https://blog.kata.academy/api/articles/${slug}`);
+    if (!response.ok) return rejectWithValue('Server Error!');
+    const data = await response.json();
+    return data.article;
+  }
+);
+
 export const fetchSlice = createSlice({
   name: 'fetch',
   initialState,
@@ -72,6 +84,15 @@ export const fetchSlice = createSlice({
         state.articles = [];
         state.articlesCount = action.payload.articlesCount;
         state.articles.push(...action.payload.articles);
+        state.loading = false;
+      })
+      .addCase(getArticle.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getArticle.fulfilled, (state, action) => {
+        console.log(action.payload);
+        state.article = { ...action.payload };
         state.loading = false;
       })
       .addMatcher(isError, (state, action: PayloadAction<string>) => {

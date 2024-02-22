@@ -23,9 +23,15 @@
 }
 
 .avatar {
-  width: 46px;
-  height: 46px;
+  width: 48px;
+  height: 48px;
   border: 1px solid transparent;
   border-radius: 50%;
   overflow: hidden;
+
+  .image {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+  }
 }

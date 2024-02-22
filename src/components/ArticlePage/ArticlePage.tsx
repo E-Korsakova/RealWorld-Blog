@@ -1,17 +1,28 @@
-import { ReactElement } from 'react';
+import { ReactNode, useEffect } from 'react';
 import Markdown from 'marked-react';
+import { useParams } from 'react-router-dom';
 
 import { Article } from '../Article';
-import { ArticleType } from '../../store/fetchSlice';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { getArticle } from '../../store/fetchSlice';
 
 import styles from './index.module.scss';
 
-export const ArticlePage = ({ body, ...article }: ArticleType): ReactElement => {
-  console.log(article);
+export const ArticlePage = (): ReactNode => {
+  const dispatch = useAppDispatch();
+  const { article } = useAppSelector((state) => state.fetch);
+  const { id } = useParams();
+
+  useEffect(() => {
+    if (!article) dispatch(getArticle(id));
+  }, [id, dispatch]);
+
   return (
-    <div className={styles.pageContainer}>
-      <Article {...article} />
-      <Markdown>{body}</Markdown>
-    </div>
+    article && (
+      <div className={styles.pageContainer}>
+        <Article {...article} />
+        <Markdown>{article.body}</Markdown>
+      </div>
+    )
   );
 };
