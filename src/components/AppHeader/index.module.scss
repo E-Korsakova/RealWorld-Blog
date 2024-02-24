@@ -19,6 +19,36 @@
   }
 }
 
+.user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba($color: #000000, $alpha: 0.85);
+  line-height: 28px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    // color: #52c41a;
+    filter: drop-shadow(0 0 4px #52c41a);
+  }
+}
+
+.avatar {
+  width: 46px;
+  height: 46px;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.image {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
 .button {
   padding: 10px 20px;
   border: 1px solid transparent;

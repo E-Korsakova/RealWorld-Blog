@@ -1,7 +1,10 @@
 import React, { ReactElement } from 'react';
 import { SubmitHandler, useForm, Controller, SubmitErrorHandler } from 'react-hook-form';
 import { Input } from 'antd';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { logIn } from '../../store/fetchSlice';
 
 import styles from './index.module.scss';
 
@@ -15,20 +18,33 @@ interface LoginFormType {
   password: string;
 }
 
-const submit: SubmitHandler<LoginFormType> = (data) => {
-  console.log(data);
-};
-
-const error: SubmitErrorHandler<LoginFormType> = (data) => {
-  console.log(data);
-};
-
 export const LoginForm = (): ReactElement => {
+  const { user } = useAppSelector((state) => state.fetch);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormType>();
+  } = useForm<LoginFormType>({
+    defaultValues: {
+      email: user ? user.email : '',
+    },
+  });
+  const submit: SubmitHandler<LoginFormType> = (data) => {
+    const login = {
+      email: data.email,
+      password: data.password,
+    };
+    window.localStorage.setItem('email', data.email);
+    window.localStorage.setItem('password', data.password);
+    dispatch(logIn(login));
+    navigate('/');
+  };
+
+  const error: SubmitErrorHandler<LoginFormType> = (data) => {
+    console.log(data);
+  };
   return (
     <div className={styles.loginForm}>
       <header className={styles.header}>Sign In</header>
@@ -68,7 +84,11 @@ export const LoginForm = (): ReactElement => {
               <Input
                 {...field}
                 type="password"
-                style={errors.password ? { ...InputStyle, borderColor: 'red', marginBottom: 0 } : InputStyle}
+                style={
+                  errors.password
+                    ? { ...InputStyle, borderColor: 'red', marginBottom: 0 }
+                    : { ...InputStyle, marginBottom: 20 }
+                }
                 placeholder="Password"
               />
               {errors.password && <span className={styles.error}>{errors.password.message}</span>}
@@ -80,7 +100,7 @@ export const LoginForm = (): ReactElement => {
         </button>
         <span className={styles.text}>
           Don't have an account?{' '}
-          <Link to={''} style={{ color: '#1890FF', textDecoration: 'none' }}>
+          <Link to={'/sign-up'} style={{ color: '#1890FF', textDecoration: 'none' }}>
             Sign Up
           </Link>
         </span>

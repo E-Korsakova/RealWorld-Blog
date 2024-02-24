@@ -1,7 +1,10 @@
 import React, { ReactElement } from 'react';
 import { SubmitHandler, useForm, Controller, SubmitErrorHandler } from 'react-hook-form';
 import { Checkbox, Divider, Input } from 'antd';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+
+import { registerNewUser } from '../../store/fetchSlice';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 
 import styles from './index.module.scss';
 
@@ -10,7 +13,7 @@ const InputStyle: React.CSSProperties = {
   marginBottom: 10,
 };
 
-interface NewAccountFormType {
+export interface NewAccountFormType {
   username: string;
   email: string;
   password: string;
@@ -18,21 +21,32 @@ interface NewAccountFormType {
   checkbox: boolean;
 }
 
-const submit: SubmitHandler<NewAccountFormType> = (data) => {
-  console.log(data);
-};
-
-const error: SubmitErrorHandler<NewAccountFormType> = (data) => {
-  console.log(data);
-};
-
 export const NewAccountForm = (): ReactElement => {
+  const { isError } = useAppSelector((state) => state.fetch);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
   const {
     control,
     watch,
     handleSubmit,
     formState: { errors },
   } = useForm<NewAccountFormType>({});
+
+  const submit: SubmitHandler<NewAccountFormType> = (data) => {
+    const user = {
+      username: data.username,
+      email: data.email,
+      password: data.password,
+    };
+    dispatch(registerNewUser(user));
+    navigate('/');
+  };
+
+  const error: SubmitErrorHandler<NewAccountFormType> = (data) => {
+    console.log(data);
+  };
+
   return (
     <div className={styles.newAccountForm}>
       <header className={styles.header}>Create new account</header>
@@ -131,12 +145,15 @@ export const NewAccountForm = (): ReactElement => {
           name="checkbox"
           control={control}
           rules={{
-            required: { value: true, message: 'This field is required' },
+            required: 'This field is required',
           }}
           render={({ field }) => (
             <>
               <Checkbox
                 {...field}
+                name={field.name}
+                onChange={field.onChange}
+                checked={field.value}
                 style={{ verticalAlign: 'top', marginBottom: errors.checkbox ? 0 : 20, color: '#595959' }}
               >
                 I agree to the processing of my personal information
@@ -145,15 +162,18 @@ export const NewAccountForm = (): ReactElement => {
             </>
           )}
         />
+        {/* <Link to={'/'}> */}
         <button type="submit" className={styles.button}>
           Create
         </button>
+        {/* </Link> */}
         <span className={styles.text}>
           Already have an account?{' '}
-          <Link to={''} style={{ color: '#1890FF', textDecoration: 'none' }}>
+          <Link to={'/sign-in'} style={{ color: '#1890FF', textDecoration: 'none' }}>
             Sign In
           </Link>
         </span>
+        {isError && <span className={styles.error}>{isError}</span>}
       </form>
     </div>
   );

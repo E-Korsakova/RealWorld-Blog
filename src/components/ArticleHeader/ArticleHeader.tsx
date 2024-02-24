@@ -2,6 +2,8 @@ import { ReactNode } from 'react';
 import { Space, Tag } from 'antd';
 import uniqid from 'uniqid';
 
+import { useAppSelector } from '../../hooks';
+
 import styles from './index.module.scss';
 
 type ArticleHeaderProps = {
@@ -17,7 +19,7 @@ const disabledTags: React.CSSProperties = {
 };
 
 export const ArticleHeader = ({ title, likesCount, tags }: ArticleHeaderProps): ReactNode => {
-  console.log('title', title);
+  const { article } = useAppSelector((state) => state.fetch);
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -25,7 +27,7 @@ export const ArticleHeader = ({ title, likesCount, tags }: ArticleHeaderProps): 
         <button aria-label="likes" className={styles.likeButton} />
         {likesCount}
       </div>
-      <div className={styles.wrapper}>
+      <div className={article ? styles.full : styles.wrapper}>
         {tags.map((tag) => {
           tag = tag.trim();
           return (

@@ -24,6 +24,12 @@
   overflow: auto;
 }
 
+.full {
+  max-height: 47px;
+  overflow: auto;
+  margin-bottom: 10px;
+}
+
 .likeButton {
   align-self: center;
   box-sizing: border-box;
