@@ -30,11 +30,13 @@ export const ArticleHeader = ({ title, likesCount, tags }: ArticleHeaderProps): 
       <div className={article ? styles.full : styles.wrapper}>
         {tags.map((tag) => {
           tag = tag.trim();
-          return (
-            <Space key={uniqid.time('tag-')} size={[0, 8]} wrap>
-              <Tag style={disabledTags}>{tag.length > 10 ? tag.slice(0, 10) + '...' : tag}</Tag>
-            </Space>
-          );
+          if (tag) {
+            return (
+              <Space key={uniqid.time('tag-')} size={[0, 8]} wrap>
+                <Tag style={disabledTags}>{tag.length > 10 ? tag.slice(0, 10) + '...' : tag}</Tag>
+              </Space>
+            );
+          }
         })}
       </div>
     </div>

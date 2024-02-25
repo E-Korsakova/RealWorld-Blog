@@ -15,7 +15,7 @@
 
   &Buttons {
     display: flex;
-    gap: 5px;
+    gap: 10px;
   }
 }
 
@@ -30,8 +30,7 @@
   cursor: pointer;
 
   &:hover {
-    // color: #52c41a;
-    filter: drop-shadow(0 0 4px #52c41a);
+    color: #52c41a;
   }
 }
 
@@ -41,6 +40,10 @@
   border: 1px solid transparent;
   border-radius: 50%;
   overflow: hidden;
+
+  &:hover {
+    border-color: #52c41a;
+  }
 }
 
 .image {
@@ -51,17 +54,19 @@
 
 .button {
   padding: 10px 20px;
-  border: 1px solid transparent;
+  border: 1px solid rgba($color: #000000, $alpha: 0.75);
   background-color: transparent;
+  border-radius: 5px;
   cursor: pointer;
 
   &Title {
     font-size: 1.5em;
   }
 
-  &:hover {
+  &:hover,
+  &:active {
     color: #52c41a;
-    border: 1px solid #52c41a;
-    border-radius: 5px;
+    border-color: #52c41a;
+    box-shadow: 0 0 10px 0 #52c41a;
   }
 }

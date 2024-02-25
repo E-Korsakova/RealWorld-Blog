@@ -17,7 +17,11 @@ export const AppHeader = (): ReactElement => {
         {user ? (
           <>
             <Link to={'/new-article'}>
-              <button aria-label="create new article" className={styles.button}>
+              <button
+                aria-label="create new article"
+                className={styles.button}
+                style={{ color: '#52c41a', borderColor: '#52c41a' }}
+              >
                 <h6 className={styles.buttonTitle}>Create article</h6>
               </button>
             </Link>

@@ -35,3 +35,26 @@
     height: 100%;
   }
 }
+
+.buttonsContainer {
+  display: flex;
+  gap: 10px;
+}
+
+.button {
+  padding: 10px 20px;
+  color: #52c41a;
+  border-color: #52c41a;
+  background-color: transparent;
+  border-radius: 5px;
+  cursor: pointer;
+
+  &Title {
+    font-size: 1.5em;
+  }
+
+  &:hover,
+  &:active {
+    box-shadow: 0 0 10px 0 transparent;
+  }
+}

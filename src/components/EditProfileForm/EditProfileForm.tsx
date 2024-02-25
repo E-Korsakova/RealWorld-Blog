@@ -1,6 +1,10 @@
 import React, { ReactElement } from 'react';
 import { SubmitHandler, useForm, Controller, SubmitErrorHandler } from 'react-hook-form';
 import { Input } from 'antd';
+import { useNavigate } from 'react-router-dom';
+
+import { useAppDispatch } from '../../hooks';
+import { editProfile } from '../../store/fetchSlice';
 
 import styles from './index.module.scss';
 
@@ -16,20 +20,30 @@ interface EditProfileFormType {
   avatar: string;
 }
 
-const submit: SubmitHandler<EditProfileFormType> = (data) => {
-  console.log(data);
-};
-
-const error: SubmitErrorHandler<EditProfileFormType> = (data) => {
-  console.log(data);
-};
-
 export const EditProfileForm = (): ReactElement => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const {
     control,
     formState: { errors },
     handleSubmit,
   } = useForm<EditProfileFormType>();
+
+  const submit: SubmitHandler<EditProfileFormType> = (data) => {
+    const user = {
+      username: data.username,
+      email: data.email,
+      password: data.newPassword,
+      image: data.avatar,
+    };
+    dispatch(editProfile(user));
+    navigate('/');
+  };
+
+  const error: SubmitErrorHandler<EditProfileFormType> = (data) => {
+    console.log(data);
+  };
+
   return (
     <div className={styles.editForm}>
       <header className={styles.header}>Edit Profile</header>

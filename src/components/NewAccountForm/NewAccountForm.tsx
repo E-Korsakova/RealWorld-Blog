@@ -40,11 +40,11 @@ export const NewAccountForm = (): ReactElement => {
       password: data.password,
     };
     dispatch(registerNewUser(user));
-    navigate('/');
+    if (!isError) navigate('/');
   };
 
   const error: SubmitErrorHandler<NewAccountFormType> = (data) => {
-    console.log(data);
+    console.log('rej', data);
   };
 
   return (
@@ -66,10 +66,17 @@ export const NewAccountForm = (): ReactElement => {
             <>
               <Input
                 {...field}
-                style={errors.username ? { ...InputStyle, borderColor: 'red', marginBottom: 0 } : InputStyle}
+                style={
+                  errors.username || (isError && typeof isError === 'object' && 'username' in isError)
+                    ? { ...InputStyle, borderColor: 'red', marginBottom: 0 }
+                    : InputStyle
+                }
                 placeholder="Username"
               />
               {errors.username && <span className={styles.error}>{errors.username.message}</span>}
+              {isError && typeof isError === 'object' && 'username' in isError && (
+                <span className={styles.error}>Username {isError.username}</span>
+              )}
             </>
           )}
         />
@@ -88,10 +95,17 @@ export const NewAccountForm = (): ReactElement => {
             <>
               <Input
                 {...field}
-                style={errors.email ? { ...InputStyle, borderColor: 'red', marginBottom: 0 } : InputStyle}
+                style={
+                  errors.email || (isError && typeof isError === 'object' && 'email' in isError)
+                    ? { ...InputStyle, borderColor: 'red', marginBottom: 0 }
+                    : InputStyle
+                }
                 placeholder="Email address"
               />
               {errors.email && <span className={styles.error}>{errors.email.message}</span>}
+              {isError && typeof isError === 'object' && 'email' in isError && (
+                <span className={styles.error}>Email {isError.email}</span>
+              )}
             </>
           )}
         />
@@ -162,18 +176,16 @@ export const NewAccountForm = (): ReactElement => {
             </>
           )}
         />
-        {/* <Link to={'/'}> */}
         <button type="submit" className={styles.button}>
           Create
         </button>
-        {/* </Link> */}
         <span className={styles.text}>
           Already have an account?{' '}
           <Link to={'/sign-in'} style={{ color: '#1890FF', textDecoration: 'none' }}>
             Sign In
           </Link>
         </span>
-        {isError && <span className={styles.error}>{isError}</span>}
+        {typeof isError === 'string' && <span className={styles.error}>Username or email {isError}</span>}
       </form>
     </div>
   );

@@ -38,7 +38,7 @@ type FetchState = {
   articlesCount: number;
   currentPage: number;
   loading: boolean;
-  isError: null | string;
+  isError: null | string | { username?: string; email?: string };
   user: UserType | null;
   login: boolean;
 };
@@ -95,12 +95,15 @@ export const registerNewUser = createAsyncThunk<
     },
     body: JSON.stringify({ user }),
   });
-  if (!response.ok) return rejectWithValue(response.statusText);
   const data = await response.json();
+  if (!response.ok) {
+    console.log(data);
+    if ('username' in data.errors || 'email' in data.errors) return rejectWithValue(data.errors);
+    else return rejectWithValue(data.message);
+  }
   window.localStorage.setItem('token', data.user.token);
   window.localStorage.setItem('email', email);
   window.localStorage.setItem('password', password);
-  console.log('local');
   return data;
 });
 
@@ -123,6 +126,29 @@ export const logIn = createAsyncThunk<{ user: UserType }, { email: string; passw
     return data;
   }
 );
+
+export const editProfile = createAsyncThunk<
+  { user: UserType },
+  { username: string; email: string; password: string; image: string | null },
+  { rejectValue: string }
+>('fetch/editProfile', async function ({ username, email, password, image = null }, { rejectWithValue }) {
+  const user = { username, email, password, image };
+  const response = await fetch('https://blog.kata.academy/api/user', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Token ${window.localStorage.getItem('token')}`,
+    },
+    body: JSON.stringify({ user }),
+  });
+  window.localStorage.setItem('email', email);
+  window.localStorage.setItem('password', password);
+  console.log(response);
+  if (!response.ok) return rejectWithValue(response.statusText);
+  const data = await response.json();
+  console.log(data);
+  return data;
+});
 
 export const fetchSlice = createSlice({
   name: 'fetch',
@@ -177,9 +203,21 @@ export const fetchSlice = createSlice({
         state.login = true;
         state.loading = false;
       })
+      .addCase(editProfile.pending, (state) => {
+        state.loading = true;
+        state.isError = null;
+        state.user = null;
+      })
+      .addCase(editProfile.fulfilled, (state, action) => {
+        state.user = action.payload.user;
+        window.localStorage.setItem('token', action.payload.user.token);
+        state.login = true;
+        state.loading = false;
+      })
       .addMatcher(isError, (state, action: PayloadAction<string>) => {
         state.loading = false;
         state.isError = action.payload;
+        console.log(action.payload);
       });
   },
 });
