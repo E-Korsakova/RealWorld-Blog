@@ -1,10 +1,10 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import { SubmitHandler, useForm, Controller, SubmitErrorHandler } from 'react-hook-form';
 import { Input } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { logIn } from '../../store/fetchSlice';
+import { clearError, logIn } from '../../store/fetchSlice';
 
 import styles from './index.module.scss';
 
@@ -19,13 +19,13 @@ interface LoginFormType {
 }
 
 export const LoginForm = (): ReactElement => {
-  const { user } = useAppSelector((state) => state.fetch);
+  const { user, isError, loading } = useAppSelector((state) => state.fetch);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitSuccessful, isSubmitted },
   } = useForm<LoginFormType>({
     defaultValues: {
       email: user ? user.email : '',
@@ -39,12 +39,22 @@ export const LoginForm = (): ReactElement => {
     window.localStorage.setItem('email', data.email);
     window.localStorage.setItem('password', data.password);
     dispatch(logIn(login));
-    navigate('/');
   };
+
+  useEffect(() => {
+    if (isSubmitSuccessful && !isError && !loading) {
+      navigate('/');
+    }
+  }, [isSubmitSuccessful, isError, loading]);
 
   const error: SubmitErrorHandler<LoginFormType> = (data) => {
     console.log(data);
   };
+
+  useEffect(() => {
+    if (isError && !isSubmitSuccessful) dispatch(clearError());
+  });
+
   return (
     <div className={styles.loginForm}>
       <header className={styles.header}>Sign In</header>
@@ -63,10 +73,17 @@ export const LoginForm = (): ReactElement => {
             <>
               <Input
                 {...field}
-                style={errors.email ? { ...InputStyle, borderColor: 'red', marginBottom: 0 } : InputStyle}
+                style={
+                  errors.email || (isError && typeof isError === 'object' && 'email' in isError && isSubmitted)
+                    ? { ...InputStyle, borderColor: 'red', marginBottom: 0 }
+                    : InputStyle
+                }
                 placeholder="Email address"
               />
               {errors.email && <span className={styles.error}>{errors.email.message}</span>}
+              {isError && typeof isError === 'object' && 'email' in isError && isSubmitted && (
+                <span className={styles.error}>Email {isError.email}</span>
+              )}
             </>
           )}
         />
@@ -98,6 +115,9 @@ export const LoginForm = (): ReactElement => {
         <button type="submit" className={styles.button}>
           Login
         </button>
+        {typeof isError === 'string' && isSubmitted && (
+          <span className={styles.error}>Email or password {isError}</span>
+        )}
         <span className={styles.text}>
           Don't have an account?{' '}
           <Link to={'/sign-up'} style={{ color: '#1890FF', textDecoration: 'none' }}>

@@ -1,3 +1,7 @@
+.wrapper {
+  justify-self: end;
+}
+
 .container {
   display: grid;
   grid-template-columns: 1fr 46px;
@@ -10,6 +14,7 @@
   display: flex;
   flex-direction: column;
   align-items: end;
+  margin-bottom: 20px;
 }
 
 .title {
@@ -41,10 +46,10 @@
   gap: 10px;
 }
 
-.button {
+.deleteButton,
+.editButton {
   padding: 10px 20px;
-  color: #52c41a;
-  border-color: #52c41a;
+  border: 1px solid transparent;
   background-color: transparent;
   border-radius: 5px;
   cursor: pointer;
@@ -55,6 +60,17 @@
 
   &:hover,
   &:active {
-    box-shadow: 0 0 10px 0 transparent;
+    box-shadow: 0 0 10px 0;
   }
+}
+
+.deleteButton {
+  color: #f5222d;
+  border-color: #f5222d;
+}
+
+.editButton {
+  text-decoration: none;
+  color: #52c41a;
+  border-color: #52c41a;
 }

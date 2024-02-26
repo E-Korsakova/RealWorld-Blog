@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { Space, Tag } from 'antd';
 import uniqid from 'uniqid';
+import { HeartFilled, HeartOutlined } from '@ant-design/icons';
 
 import { useAppSelector } from '../../hooks';
 
@@ -9,7 +10,7 @@ import styles from './index.module.scss';
 type ArticleHeaderProps = {
   title: string;
   likesCount: number;
-  tags: string[];
+  tagList: string[];
 };
 
 const disabledTags: React.CSSProperties = {
@@ -18,17 +19,25 @@ const disabledTags: React.CSSProperties = {
   borderColor: '#EBEEF3',
 };
 
-export const ArticleHeader = ({ title, likesCount, tags }: ArticleHeaderProps): ReactNode => {
-  const { article } = useAppSelector((state) => state.fetch);
+export const ArticleHeader = ({ title, likesCount, tagList }: ArticleHeaderProps): ReactNode => {
+  const { article, user } = useAppSelector((state) => state.fetch);
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h5 className={styles.title}>{title.length > 45 ? title.slice(0, 45) + '...' : title}</h5>
-        <button aria-label="likes" className={styles.likeButton} />
+        <button aria-label="likes" className={user ? styles.likeButtonActive : styles.likeButton}>
+          {!user ? (
+            <HeartOutlined />
+          ) : article && !article.favorited ? (
+            <HeartOutlined />
+          ) : (
+            <HeartFilled style={{ color: 'red' }} />
+          )}
+        </button>
         {likesCount}
       </div>
       <div className={article ? styles.full : styles.wrapper}>
-        {tags.map((tag) => {
+        {tagList.map((tag) => {
           tag = tag.trim();
           if (tag) {
             return (

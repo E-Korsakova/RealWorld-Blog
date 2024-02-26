@@ -30,13 +30,16 @@
   margin-bottom: 10px;
 }
 
-.likeButton {
+.likeButton,
+.likeButtonActive {
   align-self: center;
   box-sizing: border-box;
   padding: 0;
   width: 16px;
   height: 16px;
   border: none;
-  background-color: transparent;
-  background: no-repeat url('../../data/images/empty_heart.svg');
+}
+
+.likeButtonActive {
+  cursor: pointer;
 }

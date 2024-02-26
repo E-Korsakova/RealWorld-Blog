@@ -3,7 +3,7 @@ import { SubmitHandler, useForm, Controller, SubmitErrorHandler } from 'react-ho
 import { Input } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
-import { useAppDispatch } from '../../hooks';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import { editProfile } from '../../store/fetchSlice';
 
 import styles from './index.module.scss';
@@ -21,11 +21,12 @@ interface EditProfileFormType {
 }
 
 export const EditProfileForm = (): ReactElement => {
+  const { loading, isError } = useAppSelector((state) => state.fetch);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const {
     control,
-    formState: { errors },
+    formState: { errors, isSubmitSuccessful },
     handleSubmit,
   } = useForm<EditProfileFormType>();
 
@@ -37,7 +38,7 @@ export const EditProfileForm = (): ReactElement => {
       image: data.avatar,
     };
     dispatch(editProfile(user));
-    navigate('/');
+    if (!loading && isSubmitSuccessful) navigate('/');
   };
 
   const error: SubmitErrorHandler<EditProfileFormType> = (data) => {
@@ -63,10 +64,17 @@ export const EditProfileForm = (): ReactElement => {
             <>
               <Input
                 {...field}
-                style={errors.username ? { ...InputStyle, borderColor: 'red', marginBottom: 0 } : InputStyle}
+                style={
+                  errors.username || (isError && typeof isError === 'object' && 'username' in isError)
+                    ? { ...InputStyle, borderColor: 'red', marginBottom: 0 }
+                    : InputStyle
+                }
                 placeholder="Username"
               />
               {errors.username && <span className={styles.error}>{errors.username.message}</span>}
+              {isError && typeof isError === 'object' && 'username' in isError && (
+                <span className={styles.error}>Username {isError.username}</span>
+              )}
             </>
           )}
         />
@@ -84,10 +92,17 @@ export const EditProfileForm = (): ReactElement => {
             <>
               <Input
                 {...field}
-                style={errors.email ? { ...InputStyle, borderColor: 'red', marginBottom: 0 } : InputStyle}
+                style={
+                  errors.email || (isError && typeof isError === 'object' && 'email' in isError)
+                    ? { ...InputStyle, borderColor: 'red', marginBottom: 0 }
+                    : InputStyle
+                }
                 placeholder="Email address"
               />
               {errors.email && <span className={styles.error}>{errors.email.message}</span>}
+              {isError && typeof isError === 'object' && 'email' in isError && (
+                <span className={styles.error}>Email {isError.email}</span>
+              )}
             </>
           )}
         />
@@ -145,6 +160,7 @@ export const EditProfileForm = (): ReactElement => {
         <button type="submit" className={styles.button}>
           Save
         </button>
+        {typeof isError === 'string' && <span className={styles.error}>Username or email {isError}</span>}
       </form>
     </div>
   );

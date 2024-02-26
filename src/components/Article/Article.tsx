@@ -22,7 +22,7 @@ export const Article = ({
   return (
     <Link to={`/articles/${slug}`} className={styles.container}>
       <div className={styles.article}>
-        <ArticleHeader title={title} likesCount={favoritesCount} tags={tagList} />
+        <ArticleHeader title={title} likesCount={favoritesCount} tagList={tagList} />
         <div className={styles.wrap}>
           <span className={article ? styles.full : styles.text}>{description}</span>
         </div>

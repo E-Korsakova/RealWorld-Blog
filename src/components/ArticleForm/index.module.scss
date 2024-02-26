@@ -2,7 +2,7 @@
   align-self: center;
   box-sizing: border-box;
   width: 940px;
-  height: 700px;
+  min-height: 580px;
   background-color: #fff;
   border-radius: 6px;
   padding: 30px;
@@ -52,6 +52,10 @@
   margin-bottom: 15px;
 }
 
+.tagList {
+  margin-bottom: 20px;
+}
+
 .tag {
   display: flex;
   gap: 15px;
@@ -77,6 +81,7 @@
 }
 
 .addTagButton {
+  margin-top: 15px;
   color: #1890ff;
   border-color: #1890ff;
 }

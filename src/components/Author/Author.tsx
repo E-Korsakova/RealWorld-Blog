@@ -1,9 +1,10 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { format } from 'date-fns';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { Popconfirm, message } from 'antd';
 
-import { AuthorType } from '../../store/fetchSlice';
-import { useAppSelector } from '../../hooks';
+import { AuthorType, deleteArticle } from '../../store/fetchSlice';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 
 import styles from './index.module.scss';
 
@@ -13,11 +14,18 @@ type AuthorProps = {
 };
 
 export const Author = ({ author, date }: AuthorProps): ReactNode => {
+  const [clicked, setClicked] = useState(false);
   const { user, article } = useAppSelector((state) => state.fetch);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const postDate = format(new Date(date), 'MMMM d, yyyy');
 
+  useEffect(() => {
+    if (clicked) navigate('edit');
+  }, [clicked]);
+
   return (
-    <>
+    <div className={styles.wrapper}>
       <div className={styles.container}>
         <div className={styles.info}>
           <h6 className={styles.title}>{author.username}</h6>
@@ -27,23 +35,28 @@ export const Author = ({ author, date }: AuthorProps): ReactNode => {
           <img src={author.image} alt="avatar" className={styles.image} />
         </div>
       </div>
-      {user && user.username === author.username && (
+      {user && user.username === author.username && article && (
         <div className={styles.buttonsContainer}>
-          <button
-            aria-label="delete article"
-            className={styles.button}
-            style={{ color: '#F5222D', borderColor: '#F5222D' }}
-            onClick={() => {}}
+          <Popconfirm
+            title="Delete article"
+            description="Are you sure to delete this article?"
+            onConfirm={() => {
+              dispatch(deleteArticle(article.slug));
+              message.success('Article was deleted');
+              navigate('/');
+            }}
+            okText="Yes"
+            cancelText="No"
           >
-            Delete
-          </button>
-          <Link to={`articles/:${article!.slug}/edit`}>
-            <button aria-label="edit article" className={styles.button}>
-              Edit
+            <button aria-label="delete article" className={styles.deleteButton}>
+              Delete
             </button>
-          </Link>
+          </Popconfirm>
+          <button aria-label="edit article" className={styles.editButton} onClick={() => setClicked(true)}>
+            Edit
+          </button>
         </div>
       )}
-    </>
+    </div>
   );
 };

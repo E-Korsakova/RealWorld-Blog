@@ -1,9 +1,9 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import { SubmitHandler, useForm, Controller, SubmitErrorHandler } from 'react-hook-form';
 import { Checkbox, Divider, Input } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { registerNewUser } from '../../store/fetchSlice';
+import { clearError, registerNewUser } from '../../store/fetchSlice';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 
 import styles from './index.module.scss';
@@ -22,7 +22,7 @@ export interface NewAccountFormType {
 }
 
 export const NewAccountForm = (): ReactElement => {
-  const { isError } = useAppSelector((state) => state.fetch);
+  const { isError, loading } = useAppSelector((state) => state.fetch);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -30,7 +30,7 @@ export const NewAccountForm = (): ReactElement => {
     control,
     watch,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitSuccessful, isSubmitted },
   } = useForm<NewAccountFormType>({});
 
   const submit: SubmitHandler<NewAccountFormType> = (data) => {
@@ -40,12 +40,20 @@ export const NewAccountForm = (): ReactElement => {
       password: data.password,
     };
     dispatch(registerNewUser(user));
-    if (!isError) navigate('/');
   };
 
   const error: SubmitErrorHandler<NewAccountFormType> = (data) => {
     console.log('rej', data);
   };
+  useEffect(() => {
+    if (isSubmitSuccessful && !isError && !loading) {
+      navigate('/');
+    }
+  }, [isSubmitSuccessful, isError, loading]);
+
+  useEffect(() => {
+    if (isError && !isSubmitSuccessful) dispatch(clearError());
+  });
 
   return (
     <div className={styles.newAccountForm}>
@@ -67,14 +75,14 @@ export const NewAccountForm = (): ReactElement => {
               <Input
                 {...field}
                 style={
-                  errors.username || (isError && typeof isError === 'object' && 'username' in isError)
+                  errors.username || (isError && typeof isError === 'object' && 'username' in isError && isSubmitted)
                     ? { ...InputStyle, borderColor: 'red', marginBottom: 0 }
                     : InputStyle
                 }
                 placeholder="Username"
               />
               {errors.username && <span className={styles.error}>{errors.username.message}</span>}
-              {isError && typeof isError === 'object' && 'username' in isError && (
+              {isError && typeof isError === 'object' && 'username' in isError && isSubmitted && (
                 <span className={styles.error}>Username {isError.username}</span>
               )}
             </>
@@ -96,14 +104,14 @@ export const NewAccountForm = (): ReactElement => {
               <Input
                 {...field}
                 style={
-                  errors.email || (isError && typeof isError === 'object' && 'email' in isError)
+                  errors.email || (isError && typeof isError === 'object' && 'email' in isError && isSubmitted)
                     ? { ...InputStyle, borderColor: 'red', marginBottom: 0 }
                     : InputStyle
                 }
                 placeholder="Email address"
               />
               {errors.email && <span className={styles.error}>{errors.email.message}</span>}
-              {isError && typeof isError === 'object' && 'email' in isError && (
+              {isError && typeof isError === 'object' && 'email' in isError && isSubmitted && (
                 <span className={styles.error}>Email {isError.email}</span>
               )}
             </>
@@ -179,13 +187,15 @@ export const NewAccountForm = (): ReactElement => {
         <button type="submit" className={styles.button}>
           Create
         </button>
+        {typeof isError === 'string' && isSubmitted && (
+          <span className={styles.error}>Username or email {isError}</span>
+        )}
         <span className={styles.text}>
           Already have an account?{' '}
           <Link to={'/sign-in'} style={{ color: '#1890FF', textDecoration: 'none' }}>
             Sign In
           </Link>
         </span>
-        {typeof isError === 'string' && <span className={styles.error}>Username or email {isError}</span>}
       </form>
     </div>
   );

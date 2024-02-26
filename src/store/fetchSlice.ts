@@ -97,7 +97,6 @@ export const registerNewUser = createAsyncThunk<
   });
   const data = await response.json();
   if (!response.ok) {
-    console.log(data);
     if ('username' in data.errors || 'email' in data.errors) return rejectWithValue(data.errors);
     else return rejectWithValue(data.message);
   }
@@ -119,10 +118,10 @@ export const logIn = createAsyncThunk<{ user: UserType }, { email: string; passw
       },
       body: JSON.stringify({ user }),
     });
-    console.log(response);
-    if (!response.ok) return rejectWithValue(response.statusText);
     const data = await response.json();
-    console.log(data);
+    if (!response.ok) {
+      return rejectWithValue(data.errors['email or password']);
+    }
     return data;
   }
 );
@@ -143,12 +142,77 @@ export const editProfile = createAsyncThunk<
   });
   window.localStorage.setItem('email', email);
   window.localStorage.setItem('password', password);
-  console.log(response);
-  if (!response.ok) return rejectWithValue(response.statusText);
   const data = await response.json();
   console.log(data);
+  if (!response.ok) {
+    if ('username' in data.errors || 'email' in data.errors) return rejectWithValue(data.errors);
+    else return rejectWithValue(data.message);
+  }
   return data;
 });
+
+export const createNewArticle = createAsyncThunk<
+  { article: ArticleType },
+  { title: string; description: string; body: string; tagList?: string[] },
+  { rejectValue: string }
+>('fetch/createNewArticle', async function ({ title, description, body, tagList }, { rejectWithValue }) {
+  const article = { title, description, body, tagList };
+  const response = await fetch('https://blog.kata.academy/api/articles', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Token ${window.localStorage.getItem('token')}`,
+    },
+    body: JSON.stringify({ article }),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    if ('body' in data.errors) return rejectWithValue(data.errors.body);
+    else return rejectWithValue(data.message);
+  }
+  return data;
+});
+
+export const editArticle = createAsyncThunk<
+  { article: ArticleType },
+  { editedArticle: { title: string; description: string; body: string }; slug: string },
+  { rejectValue: string }
+>('fetch/editArticle', async function ({ editedArticle, slug }, { rejectWithValue }) {
+  const article = { title: editedArticle.title, description: editedArticle.description, body: editedArticle.body };
+  const response = await fetch(`https://blog.kata.academy/api/articles/${slug}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Token ${window.localStorage.getItem('token')}`,
+    },
+    body: JSON.stringify({ article }),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    if ('body' in data.errors) return rejectWithValue(data.errors.body);
+    else return rejectWithValue(data.message);
+  }
+  return data;
+});
+
+export const deleteArticle = createAsyncThunk<undefined, string, { rejectValue: string }>(
+  'fetch/deleteArticle',
+  async function (slug, { rejectWithValue }) {
+    const response = await fetch(`https://blog.kata.academy/api/articles/${slug}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Token ${window.localStorage.getItem('token')}`,
+      },
+    });
+    if (!response.ok) {
+      const data = await response.json();
+      return rejectWithValue(data.errors.message);
+    }
+
+    return undefined;
+  }
+);
 
 export const fetchSlice = createSlice({
   name: 'fetch',
@@ -161,6 +225,9 @@ export const fetchSlice = createSlice({
       state.login = false;
       window.localStorage.clear();
       state.user = null;
+    },
+    clearError(state) {
+      state.isError = null;
     },
   },
   extraReducers(builder) {
@@ -177,7 +244,7 @@ export const fetchSlice = createSlice({
         state.loading = false;
       })
       .addCase(getArticle.pending, (state) => {
-        state.articles = [];
+        state.article = null;
         state.loading = true;
         state.isError = null;
       })
@@ -214,14 +281,39 @@ export const fetchSlice = createSlice({
         state.login = true;
         state.loading = false;
       })
+      .addCase(createNewArticle.pending, (state) => {
+        state.loading = true;
+        state.isError = null;
+        state.article = null;
+      })
+      .addCase(createNewArticle.fulfilled, (state, action) => {
+        state.article = action.payload.article;
+        state.loading = false;
+      })
+      .addCase(editArticle.pending, (state) => {
+        state.loading = true;
+        state.isError = null;
+        state.article = null;
+      })
+      .addCase(editArticle.fulfilled, (state, action) => {
+        state.article = action.payload.article;
+        state.loading = false;
+      })
+      .addCase(deleteArticle.pending, (state) => {
+        state.loading = true;
+        state.isError = null;
+      })
+      .addCase(deleteArticle.fulfilled, (state) => {
+        state.article = null;
+        state.loading = false;
+      })
       .addMatcher(isError, (state, action: PayloadAction<string>) => {
         state.loading = false;
         state.isError = action.payload;
-        console.log(action.payload);
       });
   },
 });
 
-export const { setPage, logOut } = fetchSlice.actions;
+export const { setPage, logOut, clearError } = fetchSlice.actions;
 
 export default fetchSlice.reducer;
