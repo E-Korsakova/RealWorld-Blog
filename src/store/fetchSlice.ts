@@ -204,7 +204,6 @@ export const editArticle = createAsyncThunk<
     body: newArticle.body,
     tagList: newArticle.tagList,
   };
-  console.log(JSON.stringify({ article }));
   const response = await fetch(`https://blog.kata.academy/api/articles/${slug}`, {
     method: 'PUT',
     headers: {
