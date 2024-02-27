@@ -1,5 +1,4 @@
 import { ReactElement } from 'react';
-import { Link } from 'react-router-dom';
 
 import { ArticleType } from '../../store/fetchSlice';
 import { ArticleHeader } from '../ArticleHeader';
@@ -14,20 +13,27 @@ export const Article = ({
   createdAt,
   description,
   favoritesCount,
+  favorited,
   tagList,
   title,
   updatedAt,
 }: ArticleType): ReactElement => {
   const { article } = useAppSelector((state) => state.fetch);
   return (
-    <Link to={`/articles/${slug}`} className={styles.container}>
+    <article className={styles.container}>
       <div className={styles.article}>
-        <ArticleHeader title={title} likesCount={favoritesCount} tagList={tagList} />
+        <ArticleHeader
+          title={title}
+          favoritesCount={favoritesCount}
+          tagList={tagList}
+          favorited={favorited}
+          slug={slug}
+        />
         <div className={styles.wrap}>
           <span className={article ? styles.full : styles.text}>{description}</span>
         </div>
       </div>
       <Author author={author} date={updatedAt || createdAt} />
-    </Link>
+    </article>
   );
 };

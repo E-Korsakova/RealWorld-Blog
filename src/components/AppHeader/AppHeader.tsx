@@ -12,7 +12,9 @@ export const AppHeader = (): ReactElement => {
   const navigate = useNavigate();
   return (
     <header className={styles.header}>
-      <h6 className={styles.headerTitle}>Realworld Blog</h6>
+      <Link to={'/articles'} className={styles.headerTitle}>
+        Realworld Blog
+      </Link>
       <div className={styles.headerButtons}>
         {user ? (
           <>
@@ -20,26 +22,25 @@ export const AppHeader = (): ReactElement => {
               <button
                 aria-label="create new article"
                 className={styles.button}
-                style={{ color: '#52c41a', borderColor: '#52c41a' }}
+                style={{ color: '#52c41a', borderColor: '#52c41a', fontSize: 10 }}
               >
                 <h6 className={styles.buttonTitle}>Create article</h6>
               </button>
             </Link>
-            <div className={styles.user}>
-              {user.username}
+            <Link to={'/profile'} className={styles.user}>
               <div className={styles.avatar}>
+                {user.username}
                 <img
                   src={user.image || 'https://static.productionready.io/images/smiley-cyrus.jpg'}
                   alt="avatar"
                   className={styles.image}
                 />
               </div>
-            </div>
+            </Link>
             <button
               aria-label="Log out"
               className={styles.button}
               onClick={() => {
-                console.log('out');
                 dispatch(logOut());
                 navigate('/');
               }}

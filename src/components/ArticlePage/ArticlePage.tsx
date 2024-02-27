@@ -10,14 +10,14 @@ import styles from './index.module.scss';
 
 export const ArticlePage = (): ReactNode => {
   const dispatch = useAppDispatch();
-  const { article, isError } = useAppSelector((state) => state.fetch);
+  const { article, isError, loading, login } = useAppSelector((state) => state.fetch);
   const { id } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (isError) navigate('/');
-    if (!article) dispatch(getArticle(id));
-  }, []);
+    if (!article && !loading) dispatch(getArticle(id));
+  }, [id, article, isError, login]);
 
   return (
     article && (

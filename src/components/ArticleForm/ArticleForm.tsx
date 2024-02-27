@@ -1,7 +1,8 @@
 import React, { ReactElement, useEffect } from 'react';
-import { SubmitHandler, useForm, Controller, SubmitErrorHandler, useFieldArray } from 'react-hook-form';
+import { SubmitHandler, useForm, Controller, useFieldArray } from 'react-hook-form';
 import { Input } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import uniqid from 'uniqid';
 
 import { createNewArticle, editArticle } from '../../store/fetchSlice';
 import { useAppDispatch, useAppSelector } from '../../hooks';
@@ -35,6 +36,9 @@ export const ArticleForm = ({ isEdit }: ArticleFormProps): ReactElement => {
     formState: { errors, isSubmitSuccessful },
   } = useForm<ArticleFormType>({
     defaultValues: {
+      title: article && isEdit ? article.title : '',
+      description: article && isEdit ? article.description : '',
+      text: article && isEdit ? article.body : '',
       tags: article && isEdit ? article.tagList.map((tag) => ({ name: tag })) : [],
     },
   });
@@ -43,21 +47,14 @@ export const ArticleForm = ({ isEdit }: ArticleFormProps): ReactElement => {
   const { append, fields, remove } = useFieldArray({ control, name: 'tags' });
 
   const submit: SubmitHandler<ArticleFormType> = (data) => {
-    const editedArticle = {
+    const newArticle = {
       title: data.title,
       description: data.description,
       body: data.text,
-    };
-    const newArticle = {
-      ...editedArticle,
       tagList: data.tags.map((tag) => tag.name),
     };
-    if (isEdit && article) dispatch(editArticle({ editedArticle, slug: article.slug }));
+    if (isEdit && article) dispatch(editArticle({ newArticle, slug: article.slug }));
     else dispatch(createNewArticle(newArticle));
-  };
-
-  const error: SubmitErrorHandler<ArticleFormType> = (data) => {
-    console.log(data);
   };
 
   useEffect(() => {
@@ -69,7 +66,7 @@ export const ArticleForm = ({ isEdit }: ArticleFormProps): ReactElement => {
   return (
     <div className={styles.ArticleForm}>
       <header className={styles.header}>{isEdit ? 'Edit article' : 'Create new article'}</header>
-      <form onSubmit={handleSubmit(submit, error)}>
+      <form onSubmit={handleSubmit(submit)}>
         <label htmlFor="title" className={styles.label}>
           Title
         </label>
@@ -86,7 +83,6 @@ export const ArticleForm = ({ isEdit }: ArticleFormProps): ReactElement => {
                 {...field}
                 style={errors.title ? { ...InputStyle, borderColor: 'red', marginBottom: 0 } : InputStyle}
                 placeholder="Title"
-                defaultValue={article && isEdit ? article.title : ''}
               />
               {errors.title && <span className={styles.error}>{errors.title.message}</span>}
             </>
@@ -108,7 +104,6 @@ export const ArticleForm = ({ isEdit }: ArticleFormProps): ReactElement => {
                 {...field}
                 style={errors.description ? { ...InputStyle, borderColor: 'red', marginBottom: 0 } : InputStyle}
                 placeholder="Description"
-                defaultValue={article && isEdit ? article.description : ''}
               />
               {errors.description && <span className={styles.error}>{errors.description.message}</span>}
             </>
@@ -133,58 +128,48 @@ export const ArticleForm = ({ isEdit }: ArticleFormProps): ReactElement => {
                     ? { ...InputStyle, borderColor: 'red', marginBottom: 0, height: 170, resize: 'none' }
                     : { ...InputStyle, height: 170, resize: 'none' }
                 }
-                defaultValue={article && isEdit ? article.body : ''}
               />
               {errors.text && <span className={styles.error}>{errors.text.message}</span>}
             </>
           )}
         />
-
-        {/* {!isEdit && (
-          <> */}
         <label htmlFor="tags" className={styles.label} style={{ display: 'block', marginBottom: 3 }}>
           Tags
         </label>
         <ul className={styles.tagList}>
-          {fields.map((item, index) => {
+          {fields.map((_, index) => {
             return (
-              <li key={index} className={styles.tag}>
+              <li key={uniqid.time('tag-')} className={styles.tag}>
                 <Controller
                   name={`tags.${index}.name`}
                   control={control}
                   render={({ field }) => (
                     <>
-                      <Input
-                        {...field}
-                        style={{ ...InputStyle, width: 300, marginBottom: 5 }}
-                        placeholder="Tags"
-                        disabled={isEdit ? true : false}
-                      />
+                      <Input {...field} style={{ ...InputStyle, width: 300, marginBottom: 5 }} placeholder="Tags" />
                       {errors.tags && <span className={styles.error}>{errors.tags.message}</span>}
                     </>
                   )}
                 />
-                {!isEdit && (
-                  <button aria-label="delete tag" className={styles.deleteButton} onClick={() => remove(index)}>
-                    Delete
-                  </button>
-                )}
+                <button
+                  type="button"
+                  aria-label="delete tag"
+                  className={styles.deleteButton}
+                  onClick={() => remove(index)}
+                >
+                  Delete
+                </button>
               </li>
             );
           })}
-          {!isEdit && (
-            <button
-              type="button"
-              aria-label="add tag"
-              className={styles.addTagButton}
-              onClick={() => append({ name: '' })}
-            >
-              Add tag
-            </button>
-          )}
+          <button
+            type="button"
+            aria-label="add tag"
+            className={styles.addTagButton}
+            onClick={() => append({ name: '' })}
+          >
+            Add tag
+          </button>
         </ul>
-        {/* </>
-        )} */}
         <button type="submit" className={styles.button}>
           Send
         </button>

@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect } from 'react';
-import { SubmitHandler, useForm, Controller, SubmitErrorHandler } from 'react-hook-form';
+import { SubmitHandler, useForm, Controller } from 'react-hook-form';
 import { Input } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -19,18 +19,14 @@ interface LoginFormType {
 }
 
 export const LoginForm = (): ReactElement => {
-  const { user, isError, loading } = useAppSelector((state) => state.fetch);
+  const { isError, loading } = useAppSelector((state) => state.fetch);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const {
     control,
     handleSubmit,
     formState: { errors, isSubmitSuccessful, isSubmitted },
-  } = useForm<LoginFormType>({
-    defaultValues: {
-      email: user ? user.email : '',
-    },
-  });
+  } = useForm<LoginFormType>();
   const submit: SubmitHandler<LoginFormType> = (data) => {
     const login = {
       email: data.email,
@@ -47,10 +43,6 @@ export const LoginForm = (): ReactElement => {
     }
   }, [isSubmitSuccessful, isError, loading]);
 
-  const error: SubmitErrorHandler<LoginFormType> = (data) => {
-    console.log(data);
-  };
-
   useEffect(() => {
     if (isError && !isSubmitSuccessful) dispatch(clearError());
   });
@@ -58,7 +50,7 @@ export const LoginForm = (): ReactElement => {
   return (
     <div className={styles.loginForm}>
       <header className={styles.header}>Sign In</header>
-      <form onSubmit={handleSubmit(submit, error)}>
+      <form onSubmit={handleSubmit(submit)}>
         <label htmlFor="email" className={styles.label}>
           Email address
         </label>
@@ -67,7 +59,7 @@ export const LoginForm = (): ReactElement => {
           control={control}
           rules={{
             required: { value: true, message: 'This field is required' },
-            pattern: { value: /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i, message: 'Email adress is incorrect' },
+            pattern: { value: /(\w\.?)+@[\w.-]+\.\w{2,}/, message: 'Email adress is incorrect' },
           }}
           render={({ field }) => (
             <>
@@ -116,7 +108,7 @@ export const LoginForm = (): ReactElement => {
           Login
         </button>
         {typeof isError === 'string' && isSubmitted && (
-          <span className={styles.error}>Email or password {isError}</span>
+          <span className={styles.error}>Username or email {isError}</span>
         )}
         <span className={styles.text}>
           Don't have an account?{' '}

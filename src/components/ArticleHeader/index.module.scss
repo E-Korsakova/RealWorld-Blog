@@ -17,6 +17,12 @@
   color: #1890ff;
   font-size: 1.55em;
   font-weight: 600;
+  text-decoration: none;
+  transition-duration: 0.3s;
+
+  &:hover {
+    color: #52c41a;
+  }
 }
 
 .wrapper {
@@ -34,6 +40,7 @@
 .likeButtonActive {
   align-self: center;
   box-sizing: border-box;
+  background-color: transparent;
   padding: 0;
   width: 16px;
   height: 16px;
@@ -41,5 +48,14 @@
 }
 
 .likeButtonActive {
+  line-height: 1;
   cursor: pointer;
+  transition:
+    color,
+    transform 0.2s linear;
+
+  &:hover {
+    transform: translateY(-1px) scale(1.1);
+    color: red;
+  }
 }

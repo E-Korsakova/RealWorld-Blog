@@ -1,10 +1,10 @@
-import React, { ReactElement } from 'react';
-import { SubmitHandler, useForm, Controller, SubmitErrorHandler } from 'react-hook-form';
+import React, { ReactElement, useEffect } from 'react';
+import { SubmitHandler, useForm, Controller } from 'react-hook-form';
 import { Input } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { editProfile } from '../../store/fetchSlice';
+import { clearError, editProfile } from '../../store/fetchSlice';
 
 import styles from './index.module.scss';
 
@@ -21,34 +21,46 @@ interface EditProfileFormType {
 }
 
 export const EditProfileForm = (): ReactElement => {
-  const { loading, isError } = useAppSelector((state) => state.fetch);
+  const { loading, isError, user } = useAppSelector((state) => state.fetch);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const {
     control,
-    formState: { errors, isSubmitSuccessful },
+    formState: { errors, isSubmitSuccessful, isSubmitted },
     handleSubmit,
-  } = useForm<EditProfileFormType>();
+  } = useForm<EditProfileFormType>({
+    defaultValues: {
+      username: (user && user.username) || '',
+      email: (user && user.email) || '',
+      avatar: (user && user.image) || '',
+    },
+  });
 
   const submit: SubmitHandler<EditProfileFormType> = (data) => {
-    const user = {
+    const updateUser = {
       username: data.username,
       email: data.email,
       password: data.newPassword,
       image: data.avatar,
     };
-    dispatch(editProfile(user));
-    if (!loading && isSubmitSuccessful) navigate('/');
+    dispatch(editProfile(updateUser));
   };
 
-  const error: SubmitErrorHandler<EditProfileFormType> = (data) => {
-    console.log(data);
-  };
+  useEffect(() => {
+    if (!user) navigate('/');
+  }, [user]);
 
+  useEffect(() => {
+    if (!loading && isSubmitSuccessful && !isError) navigate('/');
+  }, [isSubmitSuccessful, isError, loading]);
+
+  useEffect(() => {
+    if (isError && !isSubmitSuccessful) dispatch(clearError());
+  });
   return (
     <div className={styles.editForm}>
       <header className={styles.header}>Edit Profile</header>
-      <form onSubmit={handleSubmit(submit, error)}>
+      <form onSubmit={handleSubmit(submit)}>
         <label htmlFor="username" className={styles.label}>
           Username
         </label>
@@ -65,14 +77,14 @@ export const EditProfileForm = (): ReactElement => {
               <Input
                 {...field}
                 style={
-                  errors.username || (isError && typeof isError === 'object' && 'username' in isError)
+                  errors.username || (isError && typeof isError === 'object' && 'username' in isError && isSubmitted)
                     ? { ...InputStyle, borderColor: 'red', marginBottom: 0 }
                     : InputStyle
                 }
                 placeholder="Username"
               />
               {errors.username && <span className={styles.error}>{errors.username.message}</span>}
-              {isError && typeof isError === 'object' && 'username' in isError && (
+              {isError && typeof isError === 'object' && 'username' in isError && isSubmitted && (
                 <span className={styles.error}>Username {isError.username}</span>
               )}
             </>
@@ -93,14 +105,14 @@ export const EditProfileForm = (): ReactElement => {
               <Input
                 {...field}
                 style={
-                  errors.email || (isError && typeof isError === 'object' && 'email' in isError)
+                  errors.email || (isError && typeof isError === 'object' && 'email' in isError && isSubmitted)
                     ? { ...InputStyle, borderColor: 'red', marginBottom: 0 }
                     : InputStyle
                 }
                 placeholder="Email address"
               />
               {errors.email && <span className={styles.error}>{errors.email.message}</span>}
-              {isError && typeof isError === 'object' && 'email' in isError && (
+              {isError && typeof isError === 'object' && 'email' in isError && isSubmitted && (
                 <span className={styles.error}>Email {isError.email}</span>
               )}
             </>
@@ -160,7 +172,9 @@ export const EditProfileForm = (): ReactElement => {
         <button type="submit" className={styles.button}>
           Save
         </button>
-        {typeof isError === 'string' && <span className={styles.error}>Username or email {isError}</span>}
+        {typeof isError === 'string' && isSubmitted && (
+          <span className={styles.error}>Username or email {isError}</span>
+        )}
       </form>
     </div>
   );

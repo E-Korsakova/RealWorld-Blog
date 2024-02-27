@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect } from 'react';
-import { SubmitHandler, useForm, Controller, SubmitErrorHandler } from 'react-hook-form';
+import { SubmitHandler, useForm, Controller } from 'react-hook-form';
 import { Checkbox, Divider, Input } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -42,9 +42,6 @@ export const NewAccountForm = (): ReactElement => {
     dispatch(registerNewUser(user));
   };
 
-  const error: SubmitErrorHandler<NewAccountFormType> = (data) => {
-    console.log('rej', data);
-  };
   useEffect(() => {
     if (isSubmitSuccessful && !isError && !loading) {
       navigate('/');
@@ -58,7 +55,7 @@ export const NewAccountForm = (): ReactElement => {
   return (
     <div className={styles.newAccountForm}>
       <header className={styles.header}>Create new account</header>
-      <form onSubmit={handleSubmit(submit, error)}>
+      <form onSubmit={handleSubmit(submit)}>
         <label htmlFor="username" className={styles.label}>
           Username
         </label>
@@ -97,7 +94,7 @@ export const NewAccountForm = (): ReactElement => {
           control={control}
           rules={{
             required: { value: true, message: 'This field is required' },
-            pattern: { value: /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i, message: 'Email adress is incorrect' },
+            pattern: { value: /(\w\.?)+@[\w.-]+\.\w{2,}/, message: 'Email adress is incorrect' },
           }}
           render={({ field }) => (
             <>

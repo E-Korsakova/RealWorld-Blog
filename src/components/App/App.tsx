@@ -15,11 +15,7 @@ import { ArticleForm } from '../ArticleForm';
 
 function App(): ReactElement {
   const dispatch = useAppDispatch();
-  const { currentPage, loading } = useAppSelector((state) => state.fetch);
-
-  useEffect(() => {
-    dispatch(fetchArticles(currentPage));
-  }, [currentPage, dispatch]);
+  const { currentPage, loading, article, articles } = useAppSelector((state) => state.fetch);
 
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
@@ -30,6 +26,12 @@ function App(): ReactElement {
       dispatch(logIn(user));
     }
   }, []);
+
+  useEffect(() => {
+    if (!article && articles.length === 0 && !loading) {
+      dispatch(fetchArticles(currentPage));
+    }
+  }, [currentPage, article, loading]);
   return (
     <>
       <Routes>
